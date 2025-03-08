@@ -356,6 +356,24 @@
         }
       });
 
+      async function loadData() {
+        const url = "./data.json"; // Relative path to data.json in the same folder
+
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Failed to fetch data.json");
+
+          const jsonData = await response.json(); // Parse JSON
+          console.log("Loaded Data:", jsonData); // Debugging
+          data = jsonData;
+          displayPersonas(); // Call the function to display items
+        } catch (error) {
+          console.error("Error loading data:", error);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadData);
+
       function displayPersonas() {
         const personasContainer = document.getElementById("personas-container");
         personasContainer.innerHTML = "";
