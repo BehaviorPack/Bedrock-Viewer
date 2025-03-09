@@ -4,6 +4,7 @@ on:
   push:
   schedule:
     - cron: "30 */6 * * *"
+  workflow_dispatch:
 env:
   CUSTOM_ID: ${{ secrets.CUSTOM_ID }}
   PLAYER_SECRET: ${{ secrets.PLAYER_SECRET }}
