@@ -1,121 +1,41 @@
-import requests
-import os
-import json
-import binascii
-import base64
-import struct
-import hashlib
-import datetime
+import requests as r, os as o, json as j, binascii as b, base64 as b64, struct as s, hashlib as h, datetime as dt
+from Crypto.PublicKey import RSA as rsa
+from Crypto.Cipher import PKCS1_OAEP as p
 
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
+T=o.getenv("TITLE_ID")
+S=o.getenv("TITLE_SHARED_SECRET")
+P=o.getenv("PLAYER_SECRET")
+H={"User-Agent":"libhttpclient/1.0.0.0","Content-Type":"application/json","Accept-Language":"en-US"}
+C=r.Session()
+C.headers.update(H)
+D=f"https://{T.lower()}.playfabapi.com"
 
-TITLE_ID = os.getenv("TITLE_ID")
-TITLE_SHARED_SECRET = os.getenv("TITLE_SHARED_SECRET")
-PLAYER_SECRET = os.getenv("PLAYER_SECRET")
-
-PLAYFAB_HEADERS = {
-    "User-Agent": "libhttpclient/1.0.0.0", 
-    "Content-Type": "application/json", 
-    "Accept-Language": "en-US"
-}
-
-PLAYFAB_SESSION = requests.Session()
-PLAYFAB_SESSION.headers.update(PLAYFAB_HEADERS)
-
-PLAYFAB_DOMAIN = f"https://{TITLE_ID.lower()}.playfabapi.com"
-
-def sendPlayFabRequest(endpoint, data, hdrs={}):
-    rsp = PLAYFAB_SESSION.post(PLAYFAB_DOMAIN + endpoint, json=data, headers=hdrs).json()
-    if rsp['code'] != 200:
-        print(rsp)
+def x(e,d,h={}):return C.post(D+e,json=d,headers=h).json()['data'] if C.post(D+e,json=d,headers=h).json()['code']==200 else print(C.post(D+e,json=d,headers=h).json())
+def g():return b64.b64decode(x("/Client/GetTitlePublicKey",{"TitleId":T,"TitleSharedSecret":S})['RSAPublicKey'])
+def i(c):e=s.unpack("I",c[0x10:0x14])[0];n=bytearray(c[0x14:]);n.reverse();n=int(b.hexlify(n),16);return rsa.construct((n,e))
+def t():return dt.datetime.now().isoformat()+"Z"
+def sig(r,t):return b64.b64encode(h.sha256().update(r.encode("UTF-8")+b"." +t.encode("UTF-8")+b"." +P.encode("UTF-8")).digest())
+def l():
+    c=o.getenv("CUSTOM_ID")
+    p=o.getenv("PLAYER_SECRET")
+    n=False
+    if c==None or p==None:n=True
+    if p==None:n=True
+    pld={"CreateAccount":None,"CustomId":None,"EncryptedRequest":None,"InfoRequestParameters":{"GetCharacterInventories":False,"GetCharacterList":False,"GetPlayerProfile":True,"GetPlayerStatistics":False,"GetTitleData":False,"GetUserAccountInfo":True,"GetUserData":False,"GetUserInventory":False,"GetUserReadOnlyData":False,"GetUserVirtualCurrency":False,"PlayerStatisticNames":None,"ProfileConstraints":None,"TitleDataKeys":None,"UserDataKeys":None,"UserReadOnlyDataKeys":None},"PlayerSecret":None,"TitleId":T}
+    if n:
+        toEnc=j.dumps({"CustomId":c,"PlayerSecret":p}).encode("UTF-8")
+        pubkey=i(g())
+        cipher_rsa=p.new(pubkey)
+        ct=cipher_rsa.encrypt(toEnc)
+        pld["CreateAccount"]=True
+        pld["EncryptedRequest"]=b64.b64encode(ct).decode("UTF-8")
+        req=x("/Client/LoginWithCustomID",pld)
     else:
-        return rsp['data']
- 
-def getTerrariaCsp():
-    return base64.b64decode(sendPlayFabRequest("/Client/GetTitlePublicKey", {
-        "TitleId": TITLE_ID,
-        "TitleSharedSecret": TITLE_SHARED_SECRET
-    })['RSAPublicKey'])
-    
-def importCspKey(csp):
-    e = struct.unpack("I", csp[0x10:0x14])[0]
-    n = bytearray(csp[0x14:])
-    n.reverse()
-    n = int(binascii.hexlify(n), 16)
-    return RSA.construct((n, e))
-
-def genPlayFabTimestamp():
-    return datetime.datetime.now().isoformat()+"Z"
-
-def genPlayFabSignature(requestBody, timestamp):
-    sha256 = hashlib.sha256()
-    sha256.update(requestBody.encode("UTF-8") + b"." + timestamp.encode("UTF-8") + b"." + PLAYER_SECRET.encode("UTF-8"))
-    return base64.b64encode(sha256.digest())
-
-def LoginWithCustomId():
-    customId = os.getenv("CUSTOM_ID")
-    playerSecret = os.getenv("PLAYER_SECRET")
-    createNewAccount = False
-
-    if customId == None or playerSecret == None:
-        createNewAccount = True
-
-    if playerSecret == None:
-        createNewAccount = True
-    
-    payload = {
-        "CreateAccount" : None,
-        "CustomId": None,
-        "EncryptedRequest" : None,
-        "InfoRequestParameters" : {
-          "GetCharacterInventories" : False,
-          "GetCharacterList" : False,
-          "GetPlayerProfile" : True,
-          "GetPlayerStatistics" : False,
-          "GetTitleData" : False,
-          "GetUserAccountInfo" : True,
-          "GetUserData" : False,
-          "GetUserInventory" : False,
-          "GetUserReadOnlyData" : False,
-          "GetUserVirtualCurrency" : False,
-          "PlayerStatisticNames" : None,
-          "ProfileConstraints" : None,
-          "TitleDataKeys" : None,
-          "UserDataKeys" : None,
-          "UserReadOnlyDataKeys" : None
-        },
-        "PlayerSecret" : None,
-        "TitleId" : TITLE_ID
-    }
-
-    if createNewAccount:
-        toEnc = json.dumps({"CustomId":customId, "PlayerSecret": playerSecret}).encode("UTF-8")        
-        pubkey = importCspKey(getTerrariaCsp())
-        
-        cipher_rsa = PKCS1_OAEP.new(pubkey)
-        ciphertext = cipher_rsa.encrypt(toEnc)
-        
-        payload["CreateAccount"] = True
-        payload["EncryptedRequest"] = base64.b64encode(ciphertext).decode("UTF-8")
-
-        req = sendPlayFabRequest("/Client/LoginWithCustomID", payload)
-    else:
-        payload["CustomId"] = customId
-        ts = genPlayFabTimestamp()
-        sig = genPlayFabSignature(json.dumps(payload), ts)
-        req = sendPlayFabRequest("/Client/LoginWithCustomID", payload, {"X-PlayFab-Signature": sig, "X-PlayFab-Timestamp": ts})
-    entitytoken = req["EntityToken"]["EntityToken"]
-    PLAYFAB_SESSION.headers.update({"X-EntityToken": entitytoken})
+        pld["CustomId"]=c
+        ts=t()
+        sgn=sig(j.dumps(pld),ts)
+        req=x("/Client/LoginWithCustomID",pld,{"X-PlayFab-Signature":sgn,"X-PlayFab-Timestamp":ts})
+    et=req["EntityToken"]["EntityToken"]
+    C.headers.update({"X-EntityToken":et})
     return req
-    
-def GetEntityToken(playfabId, accType):
-    req = sendPlayFabRequest("/Authentication/GetEntityToken", {
-       "Entity" : {
-          "Id" : playfabId,
-          "Type" : accType
-       }
-    })
-    entitytoken = req["EntityToken"]
-    PLAYFAB_SESSION.headers.update({"X-EntityToken": entitytoken})
-    return req
+def gt(f,t):req=x("/Authentication/GetEntityToken",{"Entity":{"Id":f,"Type":t}});et=req["EntityToken"];C.headers.update({"X-EntityToken":et});return req
