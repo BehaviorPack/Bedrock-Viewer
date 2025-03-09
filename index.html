@@ -204,7 +204,7 @@
   </head>
   <body>
     <h1>Persona Piece Viewer</h1>
-    <input type="file" id="file-input" accept=".txt" />
+    <input type="file" id="file-input" accept=".json" />
     <p id="loaded-items">Loaded Items: 0</p>
     <div id="tag-filters">
       <div id="tag-dropdown">
@@ -262,7 +262,7 @@
       function getPrice(item) {
         const priceData = item.Price?.Prices?.[0]?.Amounts?.[0]?.Amount; // Get the first price amount
         const minecoinIcon =
-          '<img src="marketplace/minecoin_icon.png" alt="Minecoin" style="width: 20px; vertical-align: middle;">'; // Use your own icon path here
+          '<img src="../marketplace/minecoin_icon.png" alt="Minecoin" style="width: 20px; vertical-align: middle;">'; // Use your own icon path here
         return priceData ? `${priceData} ${minecoinIcon}` : "Not Available"; // If price is available, show icon and price, else show "Not Available"
       }
 
@@ -357,7 +357,7 @@
       });
 
       async function loadData() {
-        const url = ".marketplace/data.json"; // Relative path to data.json in the same folder
+        const url = "../marketplace/data.json"; // Adjusted to go up one level and access /marketplace/data.json
 
         try {
           const response = await fetch(url);
