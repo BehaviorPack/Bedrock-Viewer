@@ -262,7 +262,7 @@
       function getPrice(item) {
         const priceData = item.Price?.Prices?.[0]?.Amounts?.[0]?.Amount; // Get the first price amount
         const minecoinIcon =
-          '<img src="../marketplace/minecoin_icon.png" alt="Minecoin" style="width: 20px; vertical-align: middle;">'; // Use your own icon path here
+          '<img src="./marketplace/minecoin_icon.png" alt="Minecoin" style="width: 20px; vertical-align: middle;">'; // Use your own icon path here
         return priceData ? `${priceData} ${minecoinIcon}` : "Not Available"; // If price is available, show icon and price, else show "Not Available"
       }
 
@@ -310,8 +310,8 @@
         }
 
         // Use the checkImageExists function to load the right file type
-        const pngUrl = `marketplace/renders/${item.Title.NEUTRAL} Render.png`;
-        const gifUrl = `marketplace/renders/${item.Title.NEUTRAL} Render.gif`;
+        const pngUrl = `./marketplace/renders/${item.Title.NEUTRAL} Render.png`;
+        const gifUrl = `./marketplace/renders/${item.Title.NEUTRAL} Render.gif`;
 
         function checkImageExists(url, callback) {
           const img = new Image();
@@ -357,7 +357,7 @@
       });
 
       async function loadData() {
-        const url = "../marketplace/data.json"; // Adjusted to go up one level and access /marketplace/data.json
+        const url = "./marketplace/data.json";
 
         try {
           const response = await fetch(url);
