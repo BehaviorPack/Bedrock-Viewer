@@ -276,22 +276,18 @@
         const modalRenderRight = document.getElementById("modal-render-right");
 
         modalImg.src = item.Images[0].Url;
-        modalTitle.textContent = item.Title.NEUTRAL; // Use NEUTRAL for the title
+        modalTitle.textContent = item.Title.NEUTRAL;
 
-        // Ensure these helper functions exist
-        const formatDate = (date) => {
+        function formatDate(date) {
           const newDate = new Date(date);
           return newDate.toLocaleDateString();
-        };
+        }
 
         function filterUUIDTags(tags) {
           const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
           return tags.filter((tag) => !uuidPattern.test(tag)).map((tag) => tag.toUpperCase());
         }
 
-        // Extract the price from the Price object
-
-        // Set modal content
         modalDetails.innerHTML = ` 
         <strong>Piece Type:</strong> ${convertPieceType(item.DisplayProperties.pieceType)}<br>
         <strong>Rarity:</strong> ${item.DisplayProperties.rarity}<br>
@@ -301,15 +297,16 @@
         <strong>Tags:</strong> ${filterUUIDTags(item.Tags).join(", ")}
     `;
 
-        // Check if the item is purchasable before showing the "View In-game" button
-        if (item.DisplayProperties.purchasable) {
+        // Hide the button if the item has the "hidden_offer" tag
+        if (item.Tags.includes("hidden_offer")) {
+          viewIngameBtn.style.display = "none";
+        } else if (item.DisplayProperties.purchasable) {
           viewIngameBtn.style.display = "inline-block";
           viewIngameBtn.href = `minecraft://showDressingRoomOffer?offerID=${item.Id}`;
         } else {
-          viewIngameBtn.style.display = "none"; // Hide the button if not purchasable
+          viewIngameBtn.style.display = "none";
         }
 
-        // Use the checkImageExists function to load the right file type
         const pngUrl = `./marketplace/renders/${item.Title.NEUTRAL} Render.png`;
         const gifUrl = `./marketplace/renders/${item.Title.NEUTRAL} Render.gif`;
 
@@ -320,17 +317,11 @@
           img.src = url;
         }
 
-        // Try loading the PNG first
         checkImageExists(pngUrl, (exists) => {
-          if (exists) {
-            modalRenderRight.src = pngUrl; // If PNG exists, set it as the source
-          } else {
-            modalRenderRight.src = gifUrl; // Fallback to GIF if PNG doesn't exist
-          }
-          modalRenderRight.style.display = "block"; // Ensure the render image is visible after loading
+          modalRenderRight.src = exists ? pngUrl : gifUrl;
+          modalRenderRight.style.display = "block";
         });
 
-        // Display modal
         modal.style.display = "flex";
         document.body.classList.add("modal-open");
       }
