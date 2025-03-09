@@ -1,5 +1,5 @@
 import json,requests as rq,os as sys_os
-from pf import LoginWithCustomId as LWC, GetEntityToken as GET
+from pf import l as LWC, gt as GET
 T_C,S_K,C_T,I_L,M_I=1,0,300,[],3000
 def chk_pkg():
  p_m={'requests':'requests','colorama':'colorama'}
