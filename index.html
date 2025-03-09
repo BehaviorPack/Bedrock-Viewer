@@ -206,7 +206,7 @@
     <h1>Persona Piece Viewer</h1>
     <input type="file" id="file-input" accept=".json" />
     <p id="loaded-items">Loaded Items: 0</p>
-    <div id="tag-filters">
+    <div id="filters">
       <div id="tag-dropdown">
         <select id="tag-selector">
           <option value="">Select a Tag</option>
@@ -218,6 +218,23 @@
           <option value="earth_achievement">🌎🏆 Earth Achievement</option>
           <option value="limited.lgbtqplus">⏱🏳‍🌈 Limited LGBTQ+</option>
           <option value="tag.hidden_offer">Hidden Offer</option>
+        </select>
+      </div>
+      <div id="type-dropdown">
+        <select id="type-selector">
+          <option value="">Select a Type</option>
+          <option value="persona_emote">Emote</option>
+          <option value="persona_top">Top</option>
+          <option value="persona_head">Headwear</option>
+          <option value="persona_hood">Outerwear / Headwear</option>
+          <option value="persona_back">Back Item</option>
+          <option value="persona_feet">Footwear</option>
+          <option value="persona_capes">Cape</option>
+          <option value="persona_face_accessory">Face Item</option>
+          <option value="persona_outerwear">Outerwear</option>
+          <option value="persona_bottom">Bottoms</option>
+          <option value="persona_hand">Gloves</option>
+          <option value="persona_high_pants">Bottoms / Top</option>
         </select>
       </div>
     </div>
@@ -240,6 +257,11 @@
     <script>
       let data = {};
       let selectedTags = [];
+      let selectedPieceType = "";
+      document.getElementById("type-selector").addEventListener("change", function (event) {
+        selectedPieceType = event.target.value;
+        filterItems();
+      });
 
       function convertPieceType(pieceType) {
         const conversionMap = {
@@ -398,10 +420,9 @@
       function filterItems() {
         const filteredItems = data.data.Items.filter((item) => {
           const itemTags = item.Tags || [];
-          if (selectedTags.includes("redeemable_only")) {
-            return item.DisplayProperties.requiresRedeem === true;
-          }
-          return selectedTags.every((tag) => itemTags.includes(tag));
+          const matchesTag = selectedTags.length === 0 || selectedTags.every((tag) => itemTags.includes(tag));
+          const matchesType = !selectedPieceType || item.DisplayProperties.pieceType === selectedPieceType;
+          return matchesTag && matchesType;
         });
 
         const personasContainer = document.getElementById("personas-container");
@@ -410,15 +431,13 @@
         filteredItems.forEach((item) => {
           const personaDiv = document.createElement("div");
           personaDiv.classList.add("persona");
-
           personaDiv.innerHTML = ` 
-            <img src="${item.Images[0].Url}" alt="${item.Title.NEUTRAL}">
-            <div class="persona-title">${item.Title.NEUTRAL}</div>
-        `;
+        <img src="${item.Images[0].Url}" alt="${item.Title.NEUTRAL}">
+        <div class="persona-title">${item.Title.NEUTRAL}</div>
+      `;
           personaDiv.addEventListener("click", function () {
             openModal(item);
           });
-
           personasContainer.appendChild(personaDiv);
         });
       }
