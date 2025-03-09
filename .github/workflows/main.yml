@@ -25,9 +25,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests colorama pycryptodome  # Add pycryptodome for the Crypto module
 
-      - name: Run coin.py script
+      - name: Run fm.py script
         run: |
-          python coin.py  # Run the Python script instead of the shell script
+          python fm.py  # Run the Python script instead of the shell script
 
       - uses: EndBug/add-and-commit@v9.1.0
         with:

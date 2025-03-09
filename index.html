@@ -285,7 +285,9 @@
 
         function filterUUIDTags(tags) {
           const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-          return tags.filter((tag) => !uuidPattern.test(tag)).map((tag) => tag.toUpperCase());
+          return tags
+            .filter((tag) => !uuidPattern.test(tag) && tag !== "1P") // Exclude UUIDs and "1P"
+            .map((tag) => tag.toUpperCase());
         }
 
         modalDetails.innerHTML = ` 
