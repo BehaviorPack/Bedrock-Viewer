@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Persona Piece Viewer</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
     <style>
       /* General styling */
       body {
@@ -108,29 +109,49 @@
         background-color: #2c2c2c;
         border-radius: 10px;
         padding: 20px;
-        width: 80%;
-        height: 80%;
         display: flex;
-        flex-direction: row;
-        color: #fff;
+        align-items: center;
         position: relative;
       }
 
       .modal-left {
-        width: 50%;
-        padding-right: 20px;
-        text-align: left;
+        width: 40%;
+        padding-left: 20px;
+        /* text-align: left; */
+      }
+
+      .modal-middle {
+        width: 35%;
+        padding-left: 80px;
+        padding-right: 80px;
       }
 
       .modal-right {
-        width: 50%;
-        padding-left: 20px;
-        text-align: center;
+        width: 35%;
+        padding-left: 60px;
+        padding-right: 60px;
+        display: flex; /* Ensures the image stretches properly */
+        align-items: center; /* Centers the image if it's smaller */
+        justify-content: center; /* Centers the image horizontally */
+        height: 100%; /* Makes sure it takes the full height of the modal */
+      }
+
+      #modal-render-right {
+        width: auto; /* Ensures aspect ratio is maintained */
+        height: 100%; /* Makes the image stretch to the container height */
+        object-fit: cover; /* Ensures it fills the container without distortion */
       }
 
       .modal img {
         max-width: 100%;
         height: auto;
+      }
+
+      h3 {
+        border-radius: 10px;
+        border: 2px solid #1e2124;
+        box-shadow: 0 4px 8px #1e2124;
+        padding: 20px;
       }
 
       .close-btn {
@@ -256,6 +277,9 @@
           <img id="modal-render" src="" alt="Render Image" style="display: none; width: 100%; margin-top: 10px" />
           <a href="#" id="view-ingame-btn" class="view-ingame-btn" style="display: none">View In-game</a>
         </div>
+        <div class="modal-middle">
+          <h3 id="modal-render-container" style="width: 100%; height: 400px; text-align: center"></h3>
+        </div>
         <div class="modal-right">
           <img id="modal-render-right" src="" alt="Persona Render" style="max-width: 100%; height: auto" />
         </div>
@@ -303,9 +327,13 @@
         const viewIngameBtn = document.getElementById("view-ingame-btn");
         const modalRender = document.getElementById("modal-render");
         const modalRenderRight = document.getElementById("modal-render-right");
+        const modalRenderContainer = document.getElementById("modal-render-container"); // New container
 
         modalImg.src = item.Images[0].Url;
         modalTitle.textContent = item.Title.NEUTRAL;
+
+        const itemName = encodeURIComponent(item.Title.NEUTRAL); // Encode to handle spaces/special characters
+        const modelUrl = `https://raw.githubusercontent.com/BehaviorPack/Bedrock-Viewer/main/marketplace/renders/${itemName}.glb`;
 
         function formatDate(date) {
           const newDate = new Date(date);
@@ -352,6 +380,43 @@
           modalRenderRight.src = exists ? pngUrl : gifUrl;
           modalRenderRight.style.display = "block";
         });
+
+        modalRenderContainer.innerHTML = "";
+
+        const pieceType = item.DisplayProperties.pieceType;
+
+        // Define different camera angles for different piece types
+        const cameraAngles = {
+          persona_top: "20deg 75deg 80deg", // Slightly tilted for tops
+          persona_head: "0deg 45deg 50deg", // Closer angle for headwear
+          persona_hood: "10deg 60deg 70deg", // Adjusted for hoods
+          persona_back: "180deg 75deg 80deg", // Rear angle for back items
+          persona_feet: "0deg 90deg 40deg", // Lower angle for footwear
+          persona_capes: "180deg 80deg 90deg", // Full back view for capes
+          persona_face_accessory: "0deg 30deg 50deg", // Close-up for face accessories
+          persona_outerwear: "20deg 75deg 85deg", // Full body view for outerwear
+          persona_bottom: "20deg 75deg 60deg", // Different angle for bottoms
+          persona_hand: "0deg 60deg 50deg", // Adjusted for gloves
+          persona_high_pants: "20deg 75deg 65deg", // Unique angle for high pants
+        };
+
+        // Fallback angle if pieceType isn't in the list
+        const cameraOrbit = cameraAngles[pieceType] || "20deg 75deg 80deg";
+
+        // Create and insert <model-viewer> dynamically
+        const modelViewer = document.createElement("model-viewer");
+        modelViewer.setAttribute("src", modelUrl);
+        modelViewer.setAttribute("camera-controls", "");
+        modelViewer.setAttribute("touch-action", "pan-y");
+        modelViewer.setAttribute("shadow-intensity", "0.5");
+        modelViewer.setAttribute("shadow-softness", "0.5");
+        modelViewer.setAttribute("exposure", "0.8");
+        modelViewer.setAttribute("lighting", "neutral");
+        modelViewer.setAttribute("camera-orbit", cameraOrbit); // Set camera angle dynamically
+        modelViewer.style.width = "100%";
+        modelViewer.style.height = "400px";
+
+        modalRenderContainer.appendChild(modelViewer);
 
         modal.style.display = "flex";
         document.body.classList.add("modal-open");
