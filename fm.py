@@ -35,39 +35,40 @@ def g_uuid(a_t,uuid):
  r=rq.post(u,json=b,headers=h)
  return r.json() if r.status_code==200 else (print(f"API call failed for UUID {uuid}: {r.text}"), {})[1]
 
-def fetch_extra_items(a_t,items_list):
- extra_items=[]
- for uuid in items_list:
-  print(f"Fetching data for UUID: {uuid}")
-  data=g_uuid(a_t,uuid.strip())
-  if data and 'data' in data and 'Items' in data['data']:
-   extra_items.extend(data['data']['Items'])  # Extract and append only the items
- return extra_items
-
-def apply_tags():
+def process_tags_and_fetch_missing(a_t):
  tags_file='marketplace/tags.txt'
  data_file='marketplace/data.json'
  if not sys_os.path.exists(tags_file) or not sys_os.path.exists(data_file):
-  print("Tags file or data.json not found. Skipping tag application.")
+  print("Tags file or data.json not found. Skipping processing.")
   return
 
  with open(tags_file,'r',encoding='utf-8')as f:
-  tags_map={line.strip().split('=')[0]:line.strip().split('=')[1] for line in f if '=' in line}
+  tag_entries={line.strip().split('=')[0]:line.strip().split('=')[1] for line in f if '=' in line}
 
  with open(data_file,'r',encoding='utf-8')as f:
   data=json.load(f)
 
- for item in data.get("data",{}).get("Items",[]):
-  item_id=item.get("Id")
-  if item_id in tags_map:
-   if "Tags" not in item:
-    item["Tags"]=[]
-   item["Tags"].append(tags_map[item_id])
+ existing_items={item.get("Id"):item for item in data.get("data",{}).get("Items",[])}
+
+ for uuid, tag in tag_entries.items():
+  if uuid not in existing_items:
+   print(f"Fetching missing item for UUID: {uuid}")
+   item_data=g_uuid(a_t,uuid.strip())
+   if item_data and 'data' in item_data and 'Items' in item_data['data'] and item_data['data']['Items']:
+    fetched_item=item_data['data']['Items'][0]
+    existing_items[uuid]=fetched_item
+    data["data"]["Items"].append(fetched_item)
+
+  if uuid in existing_items:
+   if "Tags" not in existing_items[uuid]:
+    existing_items[uuid]["Tags"]=[]
+   if tag not in existing_items[uuid]["Tags"]:
+    existing_items[uuid]["Tags"].append(tag)
 
  with open(data_file,'w',encoding='utf-8')as f:
   json.dump(data,f,ensure_ascii=False,indent=4)
 
- print("Tags successfully applied to items in data.json.")
+ print("Tags applied and missing UUIDs fetched successfully.")
 
 def main():
  a_t=auth()
@@ -82,18 +83,11 @@ def main():
   if f_d:I_L.extend(f_d.get('data',{}).get('Items',[]))
   S_K+=C_T
 
- extra_file='marketplace/extra.txt'
- if sys_os.path.exists(extra_file):
-  with open(extra_file,'r',encoding='utf-8')as f:
-   extra_uuids=f.readlines()
-  extra_results=fetch_extra_items(a_t,extra_uuids)
-  I_L.extend(extra_results)  # Append extracted items correctly
-
  f_str={"data":{"Count":T_C,"Items":I_L}}
  sys_os.makedirs('marketplace',exist_ok=True)
  with open('marketplace/data.json','w',encoding='utf-8')as f:json.dump(f_str,f,ensure_ascii=False,indent=4)
- print(f"Fetched {len(I_L)} items and saved the full response (including aggregated items and extra UUIDs) to data.json")
+ print(f"Fetched {len(I_L)} items and saved the full response to data.json")
 
- apply_tags()  # Apply tags after fetching items
+ process_tags_and_fetch_missing(a_t)  # Fetch missing UUIDs and apply tags
 
 if __name__=="__main__":main()
