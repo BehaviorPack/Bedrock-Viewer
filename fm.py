@@ -54,15 +54,15 @@ def main():
   f_d=g_itm(a_t,S_K,C_T)
   if f_d:I_L.extend(f_d.get('data',{}).get('Items',[]))
   S_K+=C_T
- f_str={"data":{"Count":T_C,"Items":I_L}}
 
  extra_file='marketplace/extra.txt'
  if sys_os.path.exists(extra_file):
   with open(extra_file,'r',encoding='utf-8')as f:
    extra_uuids=f.readlines()
   extra_results=fetch_extra_items(a_t,extra_uuids)
-  f_str["data"].setdefault("ExtraItems",[]).extend(extra_results)
+  I_L.extend(extra_results)  # Append extra items to the existing Items list
 
+ f_str={"data":{"Count":T_C,"Items":I_L}}
  sys_os.makedirs('marketplace',exist_ok=True)
  with open('marketplace/data.json','w',encoding='utf-8')as f:json.dump(f_str,f,ensure_ascii=False,indent=4)
  print(f"Fetched {len(I_L)} items and saved the full response (including aggregated items and extra UUIDs) to data.json")
