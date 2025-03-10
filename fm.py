@@ -44,6 +44,31 @@ def fetch_extra_items(a_t,items_list):
    extra_items.extend(data['data']['Items'])  # Extract and append only the items
  return extra_items
 
+def apply_tags():
+ tags_file='marketplace/tags.txt'
+ data_file='marketplace/data.json'
+ if not sys_os.path.exists(tags_file) or not sys_os.path.exists(data_file):
+  print("Tags file or data.json not found. Skipping tag application.")
+  return
+
+ with open(tags_file,'r',encoding='utf-8')as f:
+  tags_map={line.strip().split('=')[0]:line.strip().split('=')[1] for line in f if '=' in line}
+
+ with open(data_file,'r',encoding='utf-8')as f:
+  data=json.load(f)
+
+ for item in data.get("data",{}).get("Items",[]):
+  item_id=item.get("Id")
+  if item_id in tags_map:
+   if "Tags" not in item:
+    item["Tags"]=[]
+   item["Tags"].append(tags_map[item_id])
+
+ with open(data_file,'w',encoding='utf-8')as f:
+  json.dump(data,f,ensure_ascii=False,indent=4)
+
+ print("Tags successfully applied to items in data.json.")
+
 def main():
  a_t=auth()
  if not a_t:return print("Exiting due to authentication failure.")
@@ -68,5 +93,7 @@ def main():
  sys_os.makedirs('marketplace',exist_ok=True)
  with open('marketplace/data.json','w',encoding='utf-8')as f:json.dump(f_str,f,ensure_ascii=False,indent=4)
  print(f"Fetched {len(I_L)} items and saved the full response (including aggregated items and extra UUIDs) to data.json")
+
+ apply_tags()  # Apply tags after fetching items
 
 if __name__=="__main__":main()
