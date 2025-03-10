@@ -29,9 +29,10 @@ def g_itm(a_t,s_k,c_t):
  return r.json()if r.status_code==200 else(print(f"API call failed: {r.text}"),{})[1]
 
 def g_uuid(a_t,uuid):
- u=f"https://20ca2.playfabapi.com/Catalog/Item/{uuid}"
+ u="https://20ca2.playfabapi.com/Catalog/Search"
  h={"x-entitytoken":a_t["EntityToken"],"Accept":"application/json"}
- r=rq.get(u,headers=h)
+ b={"filter":f"(Id eq '{uuid}')","top":1,"skip":0}
+ r=rq.post(u,json=b,headers=h)
  return r.json() if r.status_code==200 else (print(f"API call failed for UUID {uuid}: {r.text}"), {})[1]
 
 def fetch_extra_items(a_t,items_list):
