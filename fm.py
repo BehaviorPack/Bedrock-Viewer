@@ -1,156 +1,91 @@
-import json
-import requests
-import os
+import json, requests as rq, os as sys_os
 from pf import l as LWC, gt as GET
+T_C, S_K, C_T, I_L, M_I = 1, 0, 300, [], 3000
 
-TOTALCOUNT = 1
-SKIP = 0
-COUNT = 300
-ITEMS = []  # List to aggregate all items
-MAX_ITEMS = 3000  # Max number of items to fetch
-
-def ensure_packages_installed():
-    package_map = {
-        'requests': 'requests',
-        'colorama': 'colorama'
-    }
-    for module_name, package_name in package_map.items():
+def chk_pkg():
+    p_m = {'requests': 'requests', 'colorama': 'colorama'}
+    for m_n, p_n in p_m.items():
         try:
-            __import__(module_name)
+            __import__(m_n)
         except ModuleNotFoundError:
-            print(f"Module '{module_name}' not found. Installing '{package_name}'...")
+            print(f"Module '{m_n}' not found. Installing '{p_n}'...")
             try:
-                print(f"Successfully installed '{package_name}'.")
+                print(f"Successfully installed '{p_n}'.")
             except Exception as e:
-                print(f"Failed to install '{package_name}': {e}")
+                print(f"Failed to install '{p_n}': {e}")
+chk_pkg()
 
-ensure_packages_installed()
-
-def login():
-    response = LWC()
-    
-    if 'PlayFabId' in response:
-        auth_token = GET(response['PlayFabId'], 'master_player_account')
+def auth():
+    rsp = LWC()
+    if 'PlayFabId' in rsp:
+        a_t = GET(rsp['PlayFabId'], 'master_player_account')
         print("Authentication successful.")
-        return auth_token
+        return a_t
     else:
         print("Authentication failed.")
         return None
 
-def fetch_items(auth_token, skip, count):
-    url = "https://20ca2.playfabapi.com/Catalog/Search"
-    headers = {
-        "x-entitytoken": auth_token["EntityToken"],  # Extract only the token
-        "Accept": "application/json"
-    }
-    body = {
-        "filter": "(contentType eq 'PersonaDurable')",
-        "orderBy": "creationDate DESC",
-        "search": "Minecraft",
-        "skip": skip,
-        "top": count
-    }
+def g_itm(a_t, s_k, c_t):
+    u = "https://20ca2.playfabapi.com/Catalog/Search"
+    h = {"x-entitytoken": a_t["EntityToken"], "Accept": "application/json"}
+    b = {"filter": "(contentType eq 'PersonaDurable')", "orderBy": "creationDate DESC", "search": "Minecraft", "skip": s_k, "top": c_t}
+    r = rq.post(u, json=b, headers=h)
+    return r.json() if r.status_code == 200 else (print(f"API call failed: {r.text}"), {})[1]
 
-    response = requests.post(url, json=body, headers=headers)
+def read_uuids(file_path):
+    uuids = []
+    try:
+        with open(file_path, 'r') as f:
+            uuids = [line.strip() for line in f.readlines()]
+    except FileNotFoundError:
+        print(f"{file_path} not found.")
+    return uuids
 
-    if response.status_code == 200:
-        data = response.json()
-        return data  # Return the entire JSON response
-    else:
-        print(f"API call failed: {response.text}")
-        return {}
-
-def fetch_uuid_data(auth_token, uuid):
-    url = f"https://20ca2.playfabapi.com/Catalog/GetCatalogItem"
-    headers = {
-        "x-entitytoken": auth_token["EntityToken"],  # Extract only the token
-        "Accept": "application/json"
-    }
-    body = {
-        "catalogVersion": "PersonaDurable",
-        "itemId": uuid
-    }
-
-    response = requests.post(url, json=body, headers=headers)
-
-    if response.status_code == 200:
-        data = response.json()
-        return data  # Return the entire JSON response
-    else:
-        print(f"API call for UUID {uuid} failed: {response.text}")
-        return {}
+def fetch_uuid_data(a_t, uuid):
+    u = f"https://20ca2.playfabapi.com/PlayerData/Search"
+    h = {"x-entitytoken": a_t["EntityToken"], "Accept": "application/json"}
+    b = {"filter": f"(PlayerId eq '{uuid}')", "top": 1}
+    r = rq.post(u, json=b, headers=h)
+    return r.json() if r.status_code == 200 else (print(f"API call failed for UUID {uuid}: {r.text}"), {})[1]
 
 def main():
-    auth_token = login()
-    if not auth_token:
-        print("Exiting due to authentication failure.")
-        return
+    a_t = auth()
+    if not a_t:
+        return print("Exiting due to authentication failure.")
     
-    global TOTALCOUNT, SKIP, COUNT, ITEMS
+    global T_C, S_K, C_T, I_L
+    f_d = g_itm(a_t, S_K, C_T)
+    if f_d:
+        print(json.dumps(f_d, ensure_ascii=False, indent=4))
+        T_C = f_d.get('data', {}).get('Count', 0)
+        print(f"Total items to fetch: {T_C}")
     
-    # Fetch the full JSON response first
-    full_data = fetch_items(auth_token, SKIP, COUNT)
+    if T_C > M_I:
+        T_C = M_I
+        print(f"Limiting the total number of items to fetch to {M_I}")
     
-    if full_data:
-        # Print the full JSON response for verification
-        print(json.dumps(full_data, ensure_ascii=False, indent=4))
-        
-        # Extract the total count for pagination from the response
-        TOTALCOUNT = full_data.get('data', {}).get('Count', 0)
-        print(f"Total items to fetch: {TOTALCOUNT}")
+    while S_K < T_C:
+        print(f"Fetching items {S_K} to {min(S_K + C_T, T_C)}")
+        f_d = g_itm(a_t, S_K, C_T)
+        if f_d:
+            I_L.extend(f_d.get('data', {}).get('Items', []))
+        S_K += C_T
     
-    # Limit the maximum number of items to fetch to 3000
-    if TOTALCOUNT > MAX_ITEMS:
-        TOTALCOUNT = MAX_ITEMS
-        print(f"Limiting the total number of items to fetch to {MAX_ITEMS}")
+    # Fetch UUID data and append to the list
+    uuids = read_uuids('marketplace/extra.txt')
+    for uuid in uuids:
+        print(f"Fetching data for UUID: {uuid}")
+        uuid_data = fetch_uuid_data(a_t, uuid)
+        if uuid_data:
+            I_L.append(uuid_data.get('data', {}).get('Items', {}))
     
-    # Loop through the items and fetch in batches of 300
-    while SKIP < TOTALCOUNT:
-        print(f"Fetching items {SKIP} to {min(SKIP + COUNT, TOTALCOUNT)}")
-        full_data = fetch_items(auth_token, SKIP, COUNT)
-        
-        if full_data:
-            # Aggregate the items into the ITEMS list (this is where the items are collected)
-            items = full_data.get('data', {}).get('Items', [])
-            ITEMS.extend(items)
-        
-        # Update the SKIP value for pagination
-        SKIP += COUNT
+    f_str = {"data": {"Count": T_C, "Items": I_L}}
     
-    # Create the marketplace directory if it doesn't exist
-    os.makedirs('marketplace', exist_ok=True)
-
-    # Save the full structure (including the aggregated items) to data.json inside the marketplace folder
+    sys_os.makedirs('marketplace', exist_ok=True)
     with open('marketplace/data.json', 'w', encoding='utf-8') as f:
-        json.dump({"data": {"Count": TOTALCOUNT, "Items": ITEMS}}, f, ensure_ascii=False, indent=4)
+        json.dump(f_str, f, ensure_ascii=False, indent=4)
     
-    print(f"Fetched {len(ITEMS)} items and saved the full response (including aggregated items) to data.json")
-
-    # Now, fetch the UUIDs from the extra.txt file and append the results to data.json
-    if os.path.exists('marketplace/extra.txt'):
-        with open('marketplace/extra.txt', 'r') as file:
-            uuids = file.readlines()
-            uuids = [uuid.strip() for uuid in uuids]  # Remove any extra spaces or newlines
-
-        # Open the existing data.json file and load the current data
-        with open('marketplace/data.json', 'r', encoding='utf-8') as f:
-            current_data = json.load(f)
-
-        # Fetch data for each UUID and append it to the existing items
-        for uuid in uuids:
-            print(f"Fetching data for UUID: {uuid}")
-            uuid_data = fetch_uuid_data(auth_token, uuid)
-            
-            if uuid_data:
-                # Append the new data to the 'Items' field in the current data
-                items = uuid_data.get('data', {}).get('Item', [])
-                current_data['data']['Items'].extend(items)
-
-        # Save the updated data back to data.json
-        with open('marketplace/data.json', 'w', encoding='utf-8') as f:
-            json.dump(current_data, f, ensure_ascii=False, indent=4)
-        
-        print(f"Fetched data for {len(uuids)} UUIDs and updated data.json")
+    print(f"Fetched {len(I_L)} items and saved the full response (including aggregated items) to data.json")
 
 if __name__ == "__main__":
     main()
