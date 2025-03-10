@@ -40,7 +40,8 @@ def fetch_extra_items(a_t,items_list):
  for uuid in items_list:
   print(f"Fetching data for UUID: {uuid}")
   data=g_uuid(a_t,uuid.strip())
-  if data:extra_items.append(data)
+  if data and 'data' in data and 'Items' in data['data']:
+   extra_items.extend(data['data']['Items'])  # Extract and append only the items
  return extra_items
 
 def main():
@@ -61,7 +62,7 @@ def main():
   with open(extra_file,'r',encoding='utf-8')as f:
    extra_uuids=f.readlines()
   extra_results=fetch_extra_items(a_t,extra_uuids)
-  I_L.extend(extra_results)  # Append extra items to the existing Items list
+  I_L.extend(extra_results)  # Append extracted items correctly
 
  f_str={"data":{"Count":T_C,"Items":I_L}}
  sys_os.makedirs('marketplace',exist_ok=True)
