@@ -208,6 +208,12 @@
     <p id="loaded-items">Loaded Items: 0</p>
     <div id="filters">
       <div id="tag-dropdown">
+        <input
+          type="text"
+          id="search-box"
+          placeholder="Search by name..."
+          style="padding: 10px; width: 250px; border-radius: 5px; margin-bottom: 10px"
+        />
         <select id="tag-selector">
           <option value="">Select a Tag</option>
           <option value="redeemable_only">🎟️ Redeemable Only</option>
@@ -217,7 +223,8 @@
           <option value="vanilla_achievement">🍦🏆 Vanilla Achievement</option>
           <option value="earth_achievement">🌎🏆 Earth Achievement</option>
           <option value="limited.lgbtqplus">⏱🏳‍🌈 Limited LGBTQ+</option>
-          <option value="tag.hidden_offer">Hidden Offer</option>
+          <option value="tag.movie">Minecraft Movie?</option>
+          <option value="cannot_be_bought">🚫 Cannot Be Bought</option>
         </select>
       </div>
       <div id="type-dropdown">
@@ -418,11 +425,27 @@
       });
 
       function filterItems() {
+        const selectedType = document.getElementById("type-selector").value;
+        const searchQuery = document.getElementById("search-box").value.toLowerCase();
+
         const filteredItems = data.data.Items.filter((item) => {
           const itemTags = item.Tags || [];
-          const matchesTag = selectedTags.length === 0 || selectedTags.every((tag) => itemTags.includes(tag));
-          const matchesType = !selectedPieceType || item.DisplayProperties.pieceType === selectedPieceType;
-          return matchesTag && matchesType;
+          const itemType = item.DisplayProperties.pieceType;
+          const itemName = item.Title.NEUTRAL.toLowerCase();
+          const isPurchasable = item.DisplayProperties.purchasable; // True or False
+
+          const tagMatch =
+            selectedTags.length === 0 ||
+            selectedTags.every((tag) => {
+              if (tag === "redeemable_only") return item.DisplayProperties.requiresRedeem === true;
+              if (tag === "cannot_be_bought") return isPurchasable === false;
+              return itemTags.includes(tag);
+            });
+
+          const typeMatch = !selectedType || itemType === selectedType;
+          const searchMatch = !searchQuery || itemName.includes(searchQuery);
+
+          return tagMatch && typeMatch && searchMatch;
         });
 
         const personasContainer = document.getElementById("personas-container");
@@ -431,16 +454,21 @@
         filteredItems.forEach((item) => {
           const personaDiv = document.createElement("div");
           personaDiv.classList.add("persona");
+
           personaDiv.innerHTML = ` 
-        <img src="${item.Images[0].Url}" alt="${item.Title.NEUTRAL}">
-        <div class="persona-title">${item.Title.NEUTRAL}</div>
-      `;
+            <img src="${item.Images[0].Url}" alt="${item.Title.NEUTRAL}">
+            <div class="persona-title">${item.Title.NEUTRAL}</div>
+        `;
           personaDiv.addEventListener("click", function () {
             openModal(item);
           });
+
           personasContainer.appendChild(personaDiv);
         });
       }
+      document.getElementById("search-box").addEventListener("input", function () {
+        filterItems(); // Calls the filtering function as you type
+      });
     </script>
   </body>
 </html>
