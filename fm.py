@@ -80,52 +80,17 @@ def process_tags_and_fetch_missing(a_t):
 
     print("Tags applied and missing UUIDs fetched successfully.")
 
-def update_readme(new_items):
-    readme_path = "README.md"
-    
-    # Count new items
-    new_item_count = len(new_items)
-    
-    # Generate table content
-    table_header = "| Name | UUID | Type |\n|------|------|------|\n"
-    table_rows = "\n".join([f"| {item.get('Title', 'Unknown')} | {item.get('Id', 'N/A')} | {item.get('Type', 'N/A')} |" for item in new_items])
-    
-    # Full content
-    new_readme_content = (
-        "This repository is scheduled to update every 6 hours automatically.\n\n"
-        f"There are currently {new_item_count} new items listed.\n\n"
-        + table_header
-        + table_rows
-    )
-    
-    # Write to README.md
-    with open(readme_path, "w", encoding="utf-8") as f:
-        f.write(new_readme_content)
-    
-    print("README.md has been updated successfully.")
-
 # Main function to run the script
 def main():
+    # Delete data.json if it exists before proceeding
     data_file = 'marketplace/data.json'
+    if sys_os.path.exists(data_file):
+        print(f"Deleting existing {data_file}...")
+        sys_os.remove(data_file)
 
-    # Authenticate first
     a_t = auth()
     if not a_t:
         return print("Exiting due to authentication failure.")
-
-    # Check if `data.json` exists before deleting it
-    if sys_os.path.exists(data_file):
-        print(f"Checking existing {data_file} before deletion...")
-        
-        # Load existing data to check for missing UUIDs
-        with open(data_file, 'r', encoding='utf-8') as f:
-            existing_data = json.load(f)
-        
-        # Process missing UUIDs before deleting data.json
-        process_tags_and_fetch_missing(a_t)
-        
-        print(f"Deleting {data_file} after processing...")
-        sys_os.remove(data_file)
 
     global T_C, S_K, C_T, I_L
     f_d = g_itm(a_t, S_K, C_T)
@@ -149,8 +114,7 @@ def main():
         json.dump(f_str, f, ensure_ascii=False, indent=4)
     print(f"Fetched {len(I_L)} items and saved the full response to data.json")
 
-    # Call update_readme after processing everything
-    update_readme(I_L)
+    process_tags_and_fetch_missing(a_t)  # Fetch missing UUIDs and apply tags
 
 if __name__ == "__main__":
     main()
