@@ -184,20 +184,20 @@ d5abdc3b-6022-4870-bba6-73a11bbeec90=custom.sonic
 0955e164-c7e7-4ec2-aaaa-482311fa192d=custom.sonic
 
 
-9b4cadbe-ee80-43d6-94e9-a30baad425d5=custom.lastairbender
-12f3feb6-d1d0-48c3-92c9-753bd3ab9697=custom.lastairbender
-55949e6d-5c43-40d8-9447-41487b7be2a6=custom.lastairbender
-ef916e6f-86d5-41f9-b534-70eaa06b9e08=custom.lastairbender
-20383ac8-e868-4db4-8c70-206683b016d7=custom.lastairbender
-8fd3e585-7604-486d-bc22-98023e3c426a=custom.lastairbender
-bdfe3377-8b4b-42c1-9bba-67624d6f77b2=custom.lastairbender
-b54bbe17-0866-4354-a65a-35023ddde703=custom.lastairbender
-4cbd4e26-0a69-479d-9c11-2b09620e6914=custom.lastairbender
-c387df3a-6557-4d92-abc4-d0f4c197adfc=custom.lastairbender
-649dbd83-9ef1-4fca-bec2-7616a4907811=custom.lastairbender
-bdfec619-f734-405d-b13b-e246190d3783=custom.lastairbender
-f9a60a91-9bb1-4f79-87d3-86a4a7cdbf10=custom.lastairbender
-9977c560-4cd5-471b-b175-37dc9a02bb21=custom.lastairbender
+9b4cadbe-ee80-43d6-94e9-a30baad425d5=custom.avatarlegends
+12f3feb6-d1d0-48c3-92c9-753bd3ab9697=custom.avatarlegends
+55949e6d-5c43-40d8-9447-41487b7be2a6=custom.avatarlegends
+ef916e6f-86d5-41f9-b534-70eaa06b9e08=custom.avatarlegends
+20383ac8-e868-4db4-8c70-206683b016d7=custom.avatarlegends
+8fd3e585-7604-486d-bc22-98023e3c426a=custom.avatarlegends
+bdfe3377-8b4b-42c1-9bba-67624d6f77b2=custom.avatarlegends
+b54bbe17-0866-4354-a65a-35023ddde703=custom.avatarlegends
+4cbd4e26-0a69-479d-9c11-2b09620e6914=custom.avatarlegends
+c387df3a-6557-4d92-abc4-d0f4c197adfc=custom.avatarlegends
+649dbd83-9ef1-4fca-bec2-7616a4907811=custom.avatarlegends
+bdfec619-f734-405d-b13b-e246190d3783=custom.avatarlegends
+f9a60a91-9bb1-4f79-87d3-86a4a7cdbf10=custom.avatarlegends
+9977c560-4cd5-471b-b175-37dc9a02bb21=custom.avatarlegends
 
 
 a4967677-2016-49e0-98cc-b3aa2e1749b5=custom.avatar
