@@ -8,8 +8,8 @@
     <style>
       /* General styling */
       body {
-        font-family: Arial, sans-serif;
-        background-color: #121212;
+        font-family: "Poppins", sans-serif;
+        background-color: #0e0e0e;
         color: #fff;
         margin: 0;
         padding: 0;
@@ -17,20 +17,31 @@
       }
 
       h1 {
-        text-align: center;
         padding: 20px;
-        color: #fff;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        border-radius: 5px;
+        display: inline-block;
       }
 
-      /* File upload styling */
+      /* File upload */
       #file-input {
         display: block;
         margin: 20px auto;
-        font-size: 1em;
+        padding: 10px;
+        font-size: 1.1em;
+        border: none;
+        border-radius: 5px;
+        background: #333;
+        color: white;
         cursor: pointer;
+        transition: 0.3s ease;
       }
 
-      /* Persona container */
+      #file-input:hover {
+        background: #444;
+      }
+
+      /* Container for persona items */
       #personas-container {
         display: flex;
         flex-wrap: wrap;
@@ -38,20 +49,21 @@
         margin: 20px;
       }
 
-      /* Individual persona styling */
+      /* Persona Item Styling */
       .persona {
-        width: 200px;
+        width: 220px;
         margin: 15px;
-        background-color: #1e1e1e;
+        background: #1b1b1b;
         border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.5);
         cursor: pointer;
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
 
       .persona:hover {
-        transform: scale(1.05);
+        transform: scale(1.08);
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.7);
       }
 
       .persona img {
@@ -60,10 +72,10 @@
       }
 
       .persona-title {
-        text-align: center;
         font-weight: bold;
-        padding: 2px;
-        background-color: #333;
+        padding: 10px;
+        background: linear-gradient(to right, #444, #222);
+        text-transform: uppercase;
       }
 
       .persona-details {
@@ -91,7 +103,7 @@
         background: linear-gradient(to bottom, #eea87b, #833d11);
       }
 
-      /* Modal for detailed view */
+      /* Modal Styling */
       .modal {
         display: none;
         position: fixed;
@@ -99,7 +111,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 0.8);
         justify-content: center;
         align-items: center;
         z-index: 1000;
@@ -111,7 +123,10 @@
         padding: 20px;
         display: flex;
         align-items: center;
+        width: 80%;
+        max-width: 900px;
         position: relative;
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.7);
       }
 
       .modal-left {
@@ -168,58 +183,47 @@
       .view-ingame-btn {
         display: inline-block;
         margin-top: 20px;
-        padding: 10px 20px;
+        padding: 12px 25px;
         background-color: #6a6fcd;
         color: white;
-        font-size: 1.2em;
+        font-size: 1em;
         border-radius: 5px;
         cursor: pointer;
         text-decoration: none;
+        transition: 0.3s ease;
       }
 
       .view-ingame-btn:hover {
         background-color: #4a4f9b;
       }
 
-      /* Scroll behavior */
+      /* Tag filter styles */
+      #filters {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px;
+      }
+
+      select,
+      input {
+        padding: 12px;
+        border-radius: 5px;
+        border: none;
+        font-size: 1em;
+        background-color: #333;
+        color: #fff;
+        transition: 0.3s ease;
+      }
+
+      select:hover,
+      input:hover {
+        background-color: #444;
+      }
+
+      /* Scroll Behavior */
       body.modal-open {
         overflow: hidden;
-      }
-
-      /* Tag filter styles */
-      #tag-filters {
-        text-align: center;
-        margin-top: 20px;
-      }
-
-      #tag-dropdown {
-        background-color: #333;
-        color: #fff;
-        padding: 10px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1em;
-        width: 250px;
-      }
-
-      #tag-dropdown select {
-        background-color: #333;
-        color: #fff;
-        padding: 10px;
-        border: none;
-        border-radius: 5px;
-        font-size: 1em;
-        width: 100%;
-      }
-
-      #loaded-items {
-        text-align: center;
-        font-size: 1.2em;
-        margin-top: 10px;
-      }
-
-      .tag-filter.selected {
-        background-color: #6a6fcd;
       }
     </style>
   </head>
@@ -227,15 +231,10 @@
     <h1>Persona Piece Viewer</h1>
     <input type="file" id="file-input" accept=".json" />
     <p id="loaded-items">Loaded Items: 0</p>
+
     <div id="filters">
-      <div id="tag-dropdown">
-        <input
-          type="text"
-          id="search-box"
-          placeholder="Search by name..."
-          style="padding: 10px; width: 250px; border-radius: 5px; margin-bottom: 10px"
-        />
-        <select id="tag-selector">
+      <input type="text" id="search-box" placeholder="Search by name..." />
+      <select id="tag-selector">
           <option value="">Select a Tag</option>
           <option value="hidden_offer">🔎 Hidden Offer</option>
           <option value="redeemable_only">🎟️ Redeemable Only</option>
@@ -267,8 +266,6 @@
           <option value="custom.godzilla">Godzilla</option>
           <option value="custom.planetearth3">Planet Earth lll</option>
         </select>
-      </div>
-      <div id="type-dropdown">
         <select id="type-selector">
           <option value="">Select a Type</option>
           <option value="persona_emote">Emote</option>

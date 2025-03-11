@@ -80,6 +80,30 @@ def process_tags_and_fetch_missing(a_t):
 
     print("Tags applied and missing UUIDs fetched successfully.")
 
+def update_readme(new_items):
+    readme_path = "README.md"
+    
+    # Count new items
+    new_item_count = len(new_items)
+    
+    # Generate table content
+    table_header = "| Name | UUID | Type |\n|------|------|------|\n"
+    table_rows = "\n".join([f"| {item.get('Title', 'Unknown')} | {item.get('Id', 'N/A')} | {item.get('Type', 'N/A')} |" for item in new_items])
+    
+    # Full content
+    new_readme_content = (
+        "This repository is scheduled to update every 6 hours automatically.\n\n"
+        f"There are currently {new_item_count} new items listed.\n\n"
+        + table_header
+        + table_rows
+    )
+    
+    # Write to README.md
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.write(new_readme_content)
+    
+    print("README.md has been updated successfully.")
+
 # Main function to run the script
 def main():
     # Delete data.json if it exists before proceeding
@@ -115,6 +139,9 @@ def main():
     print(f"Fetched {len(I_L)} items and saved the full response to data.json")
 
     process_tags_and_fetch_missing(a_t)  # Fetch missing UUIDs and apply tags
+
+    # Call update_readme after processing everything
+    update_readme(I_L)
 
 if __name__ == "__main__":
     main()
