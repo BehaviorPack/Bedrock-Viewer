@@ -456,9 +456,9 @@ bdbf3952-6b4a-4fdf-ac83-a8e9dd6d1d34=custom.baseball
 59d6b83e-bdb2-4dce-9f38-b972c485f64f=custom.baseball
 
 
-bc1527aa-12a5-42f2-9921-3abd00e7382b=custom.angrybirds="Very Angry Birds"
-43a0e9ef-ab1b-450b-a18e-ed58e4a60bab=custom.angrybirds="Very Angry Birds"
-5d8913e8-3ca3-4878-bb5f-b897517b5741=custom.angrybirds="Very Angry Birds"
+bc1527aa-12a5-42f2-9921-3abd00e7382b=custom.angrybirds=Grumpy Pigeons
+43a0e9ef-ab1b-450b-a18e-ed58e4a60bab=custom.angrybirds=Grumpy Pigeons
+5d8913e8-3ca3-4878-bb5f-b897517b5741=custom.angrybirds=Grumpy Pigeons
 
 
 910a64dc-243e-4e1f-a4c0-275ebc91c957=custom.theworldwarrior
