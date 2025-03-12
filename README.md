@@ -13,6 +13,6 @@
   <div align="center">
    <h1>Persona Piece Viewer</h1>
    <p style="font-size: 1.2em;">
-      Ever wanted to browse every single Character Creator item in Minecraft: Bedrock Edition? Look no further! Persona Piece Viewer is the ultimate archive, showcasing every Character Creator (Persona) item ever released. Whether you're searching for a specific cosmetic, wondering how to obtain an exclusive piece, or just exploring, we've got it all in one place.
+      A simple automatically updating Character Creator viewer.
    </p>
 </div>
