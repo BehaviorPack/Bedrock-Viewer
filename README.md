@@ -1,5 +1,5 @@
 <p align="center">
-   <a href="https://github.com/BehaviorPack/Bedrock-Viewer/">
+   <a href="https://github.com/BehaviorPack/Bedrock-Item-Viewer">
       <span style="display: inline-block;">
          <img src="https://github.com/BehaviorPack/Bedrock-Viewer/blob/main/marketplace/artpiece1.png" width="190" height="253">
       </span>
@@ -13,6 +13,6 @@
   <div align="center">
    <h1>Bedrock Item Viewer</h1>
    <p style="font-size: 1.2em;">
-      A weekly updated web page for viewing items from Minecraft: Bedrock Edition.
+      A Minecraft: Bedrock Item Viewer for viewing and filtering character creator items, with various types and tags.
    </p>
 </div>
