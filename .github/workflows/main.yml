@@ -19,16 +19,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests colorama pycryptodome  # Add pycryptodome for the Crypto module
-
+          pip install requests colorama pycryptodome
       - name: Run fm.py script
         run: |
-          python fm.py  # Run the Python script instead of the shell script
-
+          python __pycache__/fm.py
       - uses: EndBug/add-and-commit@v9.1.0
         with:
           message: "Updated Persona Pieces"
