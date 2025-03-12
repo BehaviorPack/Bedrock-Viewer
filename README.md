@@ -1,13 +1,13 @@
 <p align="center">
    <a href="https://github.com/BehaviorPack/Bedrock-Item-Viewer">
       <span style="display: inline-block;">
-         <img src="https://www.minecraft.net/content/dam/games/minecraft/key-art/Redeem_Card-Art-0_WK-Kellogg_570x760_01.png" width="190" height="253">
+         <img src="https://github.com/BehaviorPack/Bedrock-Viewer/blob/main/marketplace/artpiece1.png" width="190" height="253">
       </span>
       <span style="display: inline-block;">
-         <img src="https://www.minecraft.net/content/dam/games/minecraft/key-art/Redeem_Card-Art-0_Party-Frog-Woolworths_570x760_03.png" width="190" height="253">
+         <img src="https://github.com/BehaviorPack/Bedrock-Viewer/blob/main/marketplace/artpiece3.png" width="190" height="253">
       </span>
       <span style="display: inline-block;">
-         <img src="https://www.minecraft.net/content/dam/games/minecraft/key-art/Redeem_Card-Art-0_Kellogg_CharacterCreator_570x760.png" width="190" height="253">
+         <img src="https://github.com/BehaviorPack/Bedrock-Viewer/blob/main/marketplace/artpiece2.png" width="190" height="253">
       </span>
    </a>
   <div align="center">
