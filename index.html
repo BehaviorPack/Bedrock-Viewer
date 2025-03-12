@@ -144,7 +144,7 @@
         position: relative;
         box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.7);
       }
-
+      
       .modal-left {
         width: 40%;
         padding-left: 20px;
@@ -398,9 +398,11 @@
         <strong>Creation Date:</strong> ${formatDate(item.CreationDate)}<br>
         <strong>Last Modified:</strong> ${formatDate(item.LastModifiedDate)}<br>
         <strong>Price:</strong> ${getPrice(item)}<br>
-        <strong>Tags:</strong> ${filterUUIDTags(item.Tags).join(", ")}
+        <strong>Tags:</strong> ${filterUUIDTags(item.Tags).join(", ")}<br>
+        ${item.Description && item.Description.NEUTRAL !== "§" ? `<strong>Description:</strong> ${item.Description.NEUTRAL}<br>` : ""}
+        ${item.Id}
     `;
-
+    
         // Hide the button if the item has the "hidden_offer" tag
         if (item.Tags.includes("hidden_offer")) {
           viewIngameBtn.style.display = "none";
