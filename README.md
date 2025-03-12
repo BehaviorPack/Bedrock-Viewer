@@ -4,9 +4,6 @@
          <img src="https://github.com/BehaviorPack/Bedrock-Viewer/blob/main/marketplace/artpiece1.png" width="190" height="253">
       </span>
       <span style="display: inline-block;">
-         <img src="https://github.com/BehaviorPack/Bedrock-Viewer/blob/main/marketplace/artpiece4.png" width="190" height="253">
-      </span>
-      <span style="display: inline-block;">
          <img src="https://github.com/BehaviorPack/Bedrock-Viewer/blob/main/marketplace/artpiece3.png" width="190" height="253">
       </span>
       <span style="display: inline-block;">
