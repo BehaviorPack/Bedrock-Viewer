@@ -11,8 +11,8 @@
       </span>
    </a>
   <div align="center">
-   <h1>Persona Piece Viewer</h1>
+   <h1>Bedrock Item Viewer</h1>
    <p style="font-size: 1.2em;">
-      A simple automatically updating Character Creator viewer.
+      A weekly updated web page for viewing items from Minecraft: Bedrock Edition.
    </p>
 </div>
