@@ -395,11 +395,11 @@
         modalDetails.innerHTML = ` 
         <strong>Piece Type:</strong> ${convertPieceType(item.DisplayProperties.pieceType)}<br>
         <strong>Rarity:</strong> ${item.DisplayProperties.rarity}<br>
-        <strong>Creation Date:</strong> ${formatDate(item.CreationDate)}<br>
-        <strong>Last Modified:</strong> ${formatDate(item.LastModifiedDate)}<br>
+        <strong>Creator:</strong> ${item.DisplayProperties.creatorName}<br>
         <strong>Price:</strong> ${getPrice(item)}<br>
-        <strong>Tags:</strong> ${filterUUIDTags(item.Tags).join(", ")}<br>
         ${item.Description && item.Description.NEUTRAL !== "§" ? `<strong>Description:</strong> ${item.Description.NEUTRAL}<br>` : ""}
+        <strong>Creation Date:</strong> ${formatDate(item.CreationDate)}<br>
+        <strong>Tags:</strong> ${filterUUIDTags(item.Tags).join(", ")}<br>
         ${item.Id}
     `;
     
