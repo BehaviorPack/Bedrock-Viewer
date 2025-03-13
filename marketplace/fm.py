@@ -53,49 +53,50 @@ def process_tags_and_fetch_missing(a_t):
         print("Tags file or data.json not found. Skipping processing.")
         return
 
-    # Read tag entries and descriptions from tags.txt in order
+    # Read tag entries and descriptions from tags.txt
     with open(tags_file, 'r', encoding='utf-8') as f:
-        tag_entries = []
+        tag_entries = {}
         for line in f:
             parts = line.strip().split('=')
             if len(parts) == 3:
                 uuid, tag, description = parts
-                tag_entries.append((uuid, tag, description))  # Maintain order
+                tag_entries[uuid] = {"tag": tag, "description": description}
 
-    # Load existing data.json
     with open(data_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     existing_items = {item.get("Id"): item for item in data.get("data", {}).get("Items", [])}
-    ordered_items = data["data"]["Items"]  # Maintain original list order
 
-    # Process each UUID in order from tags.txt
-    for uuid, tag, description in tag_entries:
+    # Process each UUID from tags.txt
+    for uuid, tag_data in tag_entries.items():
+        tag = tag_data["tag"]
+        description = tag_data["description"]
+
+        # Fetch the missing item for UUID if not already in existing_items
         if uuid not in existing_items:
             print(f"Fetching missing item for UUID: {uuid}")
             item_data = g_uuid(a_t, uuid.strip())
             if item_data and 'data' in item_data and 'Items' in item_data['data'] and item_data['data']['Items']:
                 fetched_item = item_data['data']['Items'][0]
                 existing_items[uuid] = fetched_item
-                ordered_items.append(fetched_item)  # Append in order
+                data["data"]["Items"].append(fetched_item)
 
         # Apply the tag and replace "§" in the description
         if uuid in existing_items:
-            item = existing_items[uuid]
-            if "Tags" not in item:
-                item["Tags"] = []
-            if tag not in item["Tags"]:
-                item["Tags"].append(tag)
+            if "Tags" not in existing_items[uuid]:
+                existing_items[uuid]["Tags"] = []
+            if tag not in existing_items[uuid]["Tags"]:
+                existing_items[uuid]["Tags"].append(tag)
 
             # Replace "§" in the Description with the custom description
-            if "Description" in item and "NEUTRAL" in item["Description"]:
-                if "§" in item["Description"]["NEUTRAL"]:
-                    item["Description"]["NEUTRAL"] = description
+            if "Description" in existing_items[uuid] and "NEUTRAL" in existing_items[uuid]["Description"]:
+                if "§" in existing_items[uuid]["Description"]["NEUTRAL"]:
+                    existing_items[uuid]["Description"]["NEUTRAL"] = description
 
-    # Save the updated list back to data.json
+    # Save the updated data back to the data.json
     with open(data_file, 'w', encoding='utf-8') as f:
-        json.dump({"data": {"Count": len(ordered_items), "Items": ordered_items}}, f, ensure_ascii=False, indent=4)
-
+        json.dump(data, f, ensure_ascii=False, indent=4)
+        
     print("Tags applied and missing UUIDs fetched successfully. Descriptions updated.")
 
 # Main function to run the script
